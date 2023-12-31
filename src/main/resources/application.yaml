@@ -28,8 +28,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 723146681902-4d9ejpk3rn3tonp58or0ejlnia5qpk0f.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 
+            client-secret: 
 #            redirect-uri: "https://localhost:9090/api/all"
 #            authorizationUri: "https://accounts.google.com/o/oauth2/v2/auth"
 #            tokenUri: "https://www.googleapis.com/oauth2/v4/token"
@@ -41,8 +41,8 @@ spring:
               - profile
               - openid
           facebook:
-            client-id: 1013165713081414
-            client-secret: 5612982ba5fc118cf9869b7efe734a02
+            client-id: 
+            client-secret: 
 #            redirect-uri: "https://localhost:9090/api/all"
             client-name: Facebook
             scope:

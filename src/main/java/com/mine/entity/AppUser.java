@@ -3,7 +3,9 @@ package com.mine.entity;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.mine.dto.SocialType;
@@ -47,13 +49,18 @@ public class AppUser {
         
     private String socialUserId;
 
-    @NotBlank
     @Enumerated(EnumType.STRING)
     private SocialType socialType;
+    
+    @CreatedBy
+    private String createdBy;
     
     @CreatedDate
     private LocalDateTime createdDate;
  
+    @LastModifiedBy
+    private String updatedBy;
+    
     private LocalDateTime lastLoginDate;
 
 	@ElementCollection(fetch = FetchType.EAGER)

@@ -40,17 +40,7 @@ public class TokenProvider {
     public TokenProvider(AppProperties appProperties) {
         this.appProperties = appProperties;
     }
- 
-//    public String generateToken(Authentication authentication) {
-//        LocalUser userPrincipal = (LocalUser) authentication.getPrincipal();
-//  
-//		return Jwts.builder().subject(Long.toString(userPrincipal.getAppUser().getUserId()))
-//		.issuedAt(new Date(System.currentTimeMillis()))
-//		.expiration(Date.from(Instant.now().plusSeconds(Long.valueOf(appProperties.getExpireTokenInSeconds()))))
-//		.signWith(getSigningKey())
-//		.compact();        
-//    }
-    
+     
 	@SneakyThrows
 	public String createToken(Authentication  authentication) {
 

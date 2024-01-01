@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -32,6 +34,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+	
     @Autowired
     private UserRepository userRepository;
   
@@ -93,6 +97,7 @@ public class UserServiceImpl implements UserService {
 		socialUser.setUserName(oAuth2UserInfo.getName());
 		socialUser.setEmail(oAuth2UserInfo.getEmail());
 		socialUser.setRoles(Set.of(UserRoleEnum.ROLE_USER.name()));
+		log.info("socialProviderName : {} - GeneralUtils.toSocialProvider(socialProviderName) : {}", socialProviderName,GeneralUtils.toSocialProvider(socialProviderName));
 		socialUser.setSocialType(GeneralUtils.toSocialProvider(socialProviderName));
 		socialUser.setSocialUserId(oAuth2UserInfo.getId());
 		// put dummy value and will not affect on any flow in the code 

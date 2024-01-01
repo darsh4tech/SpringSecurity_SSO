@@ -6,9 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -28,10 +32,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 	@Autowired
     private TokenProvider tokenProvider;
 	@Autowired
-    private LocalUserDetailService customUserDetailsService;
+    private LocalUserDetailService localUserDetailService;
 	@Autowired
 	private HandlerExceptionResolver handlerExceptionResolver;
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
+
+	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -41,11 +49,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
             	Long userId = tokenProvider.getUserIdFromToken(jwt);
  
-                UserDetails userDetails = customUserDetailsService.loadUserById(userId);
+                UserDetails userDetails = localUserDetailService.loadUserById(userId);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
- 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContext context = securityContextHolderStrategy.createEmptyContext();
+                context.setAuthentication(authentication);
+                securityContextHolderStrategy.setContext(context);
+                securityContextRepository.saveContext(context, request, response);
             } 
             filterChain.doFilter(request, response);
         } catch (Exception ex) {

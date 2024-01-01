@@ -11,19 +11,17 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mine.dto.SocialType;
 import com.mine.dto.UserRoleEnum;
 import com.mine.entity.AppUser;
 import com.mine.entity.UserStatus;
-import com.mine.model.auditing.AuditorAwareImpl;
+import com.mine.entity.auditing.AuditorAwareImpl;
 import com.mine.repo.UserRepository;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 @SpringBootApplication
@@ -51,22 +49,11 @@ public class SpringSecuritySsoApplication implements CommandLineRunner {
         return new AuditorAwareImpl();
     }
 	
+	// to save SecurityContext between requests as default saving like previous spring security versions (5.x) is removed in current spring security version (6.x)
 	@Bean
-	protected HandlerInterceptor webRequestHandlerInterceptorAdapter() {
-		
-		return new HandlerInterceptor() {
-			@Override
-			public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-					throws Exception {
-				response.setHeader("Access-Control-Allow-Origin", "*");
-				response.setHeader("Access-Control-Allow-Methods", "GET");
-				response.setHeader("Access-Control-Max-Age", "3600");
-				response.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept, Authorization");
-				return true;
-			}
-		}; 		
+	SecurityContextRepository securityContextRepository() {
+		return new RequestAttributeSecurityContextRepository();
 	}
-	
 	
 	@Override
 	public void run(String... args) throws Exception {

@@ -28,5 +28,7 @@ public class TokenStorage {
 	
     @CreatedDate
     private LocalDateTime createdDate;
-	
+
+    private boolean softDelete;
+    
 }

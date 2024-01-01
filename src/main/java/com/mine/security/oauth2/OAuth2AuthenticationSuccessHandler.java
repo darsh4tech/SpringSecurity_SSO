@@ -8,8 +8,15 @@ import java.util.Optional;
 import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -40,16 +47,18 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 	private HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
 	private HandlerExceptionResolver handlerExceptionResolver;
-
+	
+	private SecurityContextRepository securityContextRepository;
 	
 	OAuth2AuthenticationSuccessHandler(TokenProvider tokenProvider, AppProperties appProperties,
 			HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository,
-			CookieUtils cookieUtils, HandlerExceptionResolver handlerExceptionResolver) {
+			CookieUtils cookieUtils, HandlerExceptionResolver handlerExceptionResolver, SecurityContextRepository securityContextRepository) {
 		this.tokenProvider = tokenProvider;
 		this.appProperties = appProperties;
 		this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
 		this.cookieUtils = cookieUtils;
 		this.handlerExceptionResolver = handlerExceptionResolver;
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	@Override
@@ -63,6 +72,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 		}
 
 		clearAuthenticationAttributes(request, response);
+		logger.info("onAuthenticationSuccess - authentication : {}",authentication);
+		SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+	    SecurityContext context = securityContextHolderStrategy.createEmptyContext();
+	    context.setAuthentication(authentication);
+	    securityContextHolderStrategy.setContext(context);
+	    securityContextRepository.saveContext(context, request, response);
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	}
 

@@ -87,8 +87,7 @@ public class WebSecurityConfig {
 						.successHandler(oAuth2AuthenticationSuccessHandler)
 						.failureHandler(oAuth2AuthenticationFailureHandler))
 				.securityContext((securityContext) -> securityContext
-						.securityContextRepository(securityContextRepository))
-				;
+						.securityContextRepository(securityContextRepository));
 
 		// Add our custom Token based authentication filter
 		return http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class).build();
